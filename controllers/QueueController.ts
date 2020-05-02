@@ -21,7 +21,13 @@ export default class QueueController {
       host: false,
     };
 
-    let connection = new WebSocket(`ws://[${player.address}]:${player.port}`);
+    let connection;
+
+    if (player.address.includes('::ffff:')) {
+      connection = new WebSocket(`ws://[${player.address}]:${player.port}`);
+    } else {
+      connection = new WebSocket(`ws://${player.address}:${player.port}`);
+    }
 
     connection.on('open', () => {
       connection.send(
