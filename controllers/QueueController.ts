@@ -16,6 +16,7 @@ export default class QueueController {
     let player: Player = {
       id: uuid(),
       address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+      lanAddress: req.query.lanAddress,
       socketPort: req.query.socketPort,
       serverPort: req.query.serverPort,
       ws: null,
@@ -105,6 +106,7 @@ export default class QueueController {
               data: {
                 networking_mode: 'client',
                 server_address: `${player.address}`,
+                server_lan_address: `${player.lanAddress}`,
                 server_port: `${player.serverPort}`,
               },
             })
