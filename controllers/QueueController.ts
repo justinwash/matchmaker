@@ -23,7 +23,7 @@ export default class QueueController {
 
     let connection;
 
-    if (player.address.includes('::ffff:')) {
+    if (player.address.includes('::')) {
       connection = new WebSocket(`ws://[${player.address}]:${player.port}`);
     } else {
       connection = new WebSocket(`ws://${player.address}:${player.port}`);
