@@ -23,4 +23,4 @@ app.get('/connect', (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`Matchmaking server listening at http://localhost:${port}`));
+app.listen(process.env.PORT || port, () => console.log(`Matchmaking server listening at http://localhost:${port}`));
