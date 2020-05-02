@@ -8,18 +8,15 @@ const qController = new QueueController();
 qController.startTimer();
 
 app.get('/', (req, res) => {
-  res.json({
-    response: 'GET on / not allowed',
-    request: req,
-  });
+  res.json('GET on / not allowed');
 });
 
 app.get('/connect', (req, res) => {
   try {
     qController.connect(req, res);
-  } catch {
-    console.log('connect failed. bad request?');
-    res.json('connect failed. bad request?');
+  } catch (err) {
+    console.log(`connect failed: ${err}`);
+    res.json(`connect failed: ${err}`);
   }
 });
 
