@@ -12,6 +12,7 @@ app.get('/connect', (req, res) => {
     qController.connect(req, res);
   } catch {
     console.log('connect failed. bad request?');
+    res.json('connect failed. bad request?');
   }
 });
 
