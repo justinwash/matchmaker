@@ -7,6 +7,13 @@ const qController = new QueueController();
 
 qController.startTimer();
 
+app.get('/', (req, res) => {
+  req.json({
+    response: 'GET on / not allowed',
+    request: req,
+  });
+});
+
 app.get('/connect', (req, res) => {
   try {
     qController.connect(req, res);
