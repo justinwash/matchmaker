@@ -8,7 +8,7 @@ const qController = new QueueController();
 qController.startTimer();
 
 app.get('/', (req, res) => {
-  req.json({
+  res.json({
     response: 'GET on / not allowed',
     request: req,
   });
