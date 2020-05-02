@@ -16,7 +16,8 @@ export default class QueueController {
     let player: Player = {
       id: uuid(),
       address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-      port: req.query.port,
+      socketPort: req.query.socketPort,
+      serverPort: req.query.serverPort,
       ws: null,
       host: false,
     };
@@ -24,16 +25,16 @@ export default class QueueController {
     let connection;
 
     if (player.address.includes('::')) {
-      connection = new WebSocket(`ws://[${player.address}]:${player.port}`);
+      connection = new WebSocket(`ws://[${player.address}]:${player.socketPort}`);
     } else {
-      connection = new WebSocket(`ws://${player.address}:${player.port}`);
+      connection = new WebSocket(`ws://${player.address}:${player.socketPort}`);
     }
 
     connection.on('open', () => {
       connection.send(
         JSON.stringify({
           type: 'confirmation',
-          data: `matchmaking server connected to websocket on ${player.port}`,
+          data: `matchmaking server connected to websocket on ${player.socketPort}`,
         })
       );
     });
@@ -104,6 +105,7 @@ export default class QueueController {
               data: {
                 networking_mode: 'client',
                 server_address: `${player.address}`,
+                server_port: `${player.serverPort}`,
               },
             })
           );
