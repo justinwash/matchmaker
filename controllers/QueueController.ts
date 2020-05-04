@@ -29,13 +29,13 @@ export default class QueueController {
       try {
         connection = new WebSocket(`ws://[${player.address}]:${player.socketPort}`);
       } catch (err) {
-        console.log('error connecting to websocket server');
+        console.log('error connecting to websocket server - ' + err + ': player ' + player.id);
       }
     } else {
       try {
         connection = new WebSocket(`ws://${player.address}:${player.socketPort}`);
       } catch (err) {
-        console.log('error connecting to websocket server');
+        console.log('error connecting to websocket server - ' + err + ': player ' + player.id);
       }
     }
 
