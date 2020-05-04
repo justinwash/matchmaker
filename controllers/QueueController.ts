@@ -26,9 +26,17 @@ export default class QueueController {
     let connection;
 
     if (player.address.includes('::')) {
-      connection = new WebSocket(`ws://[${player.address}]:${player.socketPort}`);
+      try {
+        connection = new WebSocket(`ws://[${player.address}]:${player.socketPort}`);
+      } catch (err) {
+        console.log('error connecting to websocket server');
+      }
     } else {
-      connection = new WebSocket(`ws://${player.address}:${player.socketPort}`);
+      try {
+        connection = new WebSocket(`ws://${player.address}:${player.socketPort}`);
+      } catch (err) {
+        console.log('error connecting to websocket server');
+      }
     }
 
     connection.on('open', () => {
