@@ -7,5 +7,5 @@ export default interface Player {
   matchFound: boolean;
   opponent: Player;
   host: boolean;
-  timeout: NodeJS.Timeout;
+  timeout: any;
 }

@@ -22,6 +22,8 @@ export default class QueueController {
 
     if (duplicate) {
       res.json({
+        request: 'connect',
+        success: true,
         message: `duplicate player: ${duplicate.id}`,
         data: {
           id: duplicate.id,
@@ -47,6 +49,8 @@ export default class QueueController {
     this.players.push(player);
 
     res.json({
+      request: 'connect',
+      success: true,
       message: `player connected: ${player.id}`,
       data: {
         id: player.id,
@@ -68,6 +72,8 @@ export default class QueueController {
     var player = this.players.find((p) => p.id == req.query.playerId);
     if (player) {
       res.json({
+        request: 'info',
+        success: true,
         message: `player information: ${player.id}`,
         data: {
           id: player.id,
@@ -82,7 +88,11 @@ export default class QueueController {
         },
       });
     } else {
-      res.json({ message: `player not found: ${req.query.playerId}` });
+      res.json({
+        request: 'info',
+        success: false,
+        message: `player not found: ${req.query.playerId}`,
+      });
     }
 
     this.resetTimeout(player);
@@ -95,12 +105,24 @@ export default class QueueController {
       this.removePlayerFromQueue(this.players[playerToDisconnect]);
       if (this.players.splice(playerToDisconnect)) {
         console.log(`player disconnected: ${req.query.playerId}`);
-        res.json({ message: `disconnected: ${req.query.playerId}` });
+        res.json({
+          request: 'disconnect',
+          success: true,
+          message: `disconnected: ${req.query.playerId}`,
+        });
       } else {
-        res.json({ message: `error disconnecting player: ${req.query.playerId}` });
+        res.json({
+          request: 'disconnect',
+          success: false,
+          message: `error disconnecting player: ${req.query.playerId}`,
+        });
       }
     } else {
-      res.json({ message: `not connected: ${req.query.playerId}` });
+      res.json({
+        request: 'disconnect',
+        success: false,
+        message: `not connected: ${req.query.playerId}`,
+      });
     }
   }
 
@@ -109,13 +131,19 @@ export default class QueueController {
     if (player) {
       this.resetTimeout(player);
       res.json({
+        request: 'ping',
+        success: true,
         message: `connection ok: ${player.id}`,
         data: {
           timeout: this.getTimeUntilDisconnect(player.timeout),
         },
       });
     } else {
-      res.json({ message: `timed out. pls reconnect.` });
+      res.json({
+        request: 'ping',
+        success: false,
+        message: `timed out. pls reconnect.`,
+      });
     }
   }
 
@@ -140,14 +168,26 @@ export default class QueueController {
     if (playerToAdd) {
       playerToAdd.matchFound = false;
       if (this.addPlayerToQueue(playerToAdd)) {
-        res.json({ message: `added to queue: ${playerToAdd.id}` });
+        res.json({
+          request: 'joinQueue',
+          success: true,
+          message: `added to queue: ${playerToAdd.id}`,
+        });
         console.log(`player added to queue: ${playerToAdd.id}`);
         this.resetTimeout(playerToAdd);
       } else {
-        res.json({ message: `already in queue: ${playerToAdd.id}` });
+        res.json({
+          request: 'joinQueue',
+          success: false,
+          message: `already in queue: ${playerToAdd.id}`,
+        });
       }
     } else {
-      res.json({ message: `not connected: ${req.query.playerId}` });
+      res.json({
+        request: 'joinQueue',
+        success: false,
+        message: `not connected: ${req.query.playerId}`,
+      });
     }
   }
 
@@ -157,7 +197,6 @@ export default class QueueController {
     if (!playerToAdd) {
       player.matchFound = false;
       this.queue.push(player);
-      console.log(this.queue);
       return true;
     } else {
       return false;
@@ -169,14 +208,26 @@ export default class QueueController {
 
     if (playerToRemove) {
       if (this.removePlayerFromQueue(playerToRemove)) {
-        res.json({ message: `removed from queue: ${playerToRemove.id}` });
+        res.json({
+          request: 'exitQueue',
+          success: true,
+          message: `removed from queue: ${playerToRemove.id}`,
+        });
         console.log(`player removed from queue: ${playerToRemove.id}`);
         this.resetTimeout(playerToRemove);
       } else {
-        res.json({ message: `not in queue: ${playerToRemove.id}` });
+        res.json({
+          request: 'exitQueue',
+          success: false,
+          message: `not in queue: ${playerToRemove.id}`,
+        });
       }
     } else {
-      res.json({ message: `not connected: ${req.query.playerId}` });
+      res.json({
+        request: 'exitQueue',
+        success: false,
+        message: `not connected: ${req.query.playerId}`,
+      });
     }
   }
 
@@ -196,6 +247,8 @@ export default class QueueController {
 
     if (!player) {
       res.json({
+        request: 'getQueueStatus',
+        success: false,
         message: `not connected`,
       });
       return;
@@ -203,14 +256,31 @@ export default class QueueController {
 
     if (player && player.matchFound && player.opponent) {
       res.json({
+        request: 'getQueueStatus',
+        success: true,
         message: `match found`,
-        data: player.opponent,
+        data: {
+          player: {
+            id: player.id,
+            address: player.address,
+            lanAddress: player.lanAddress,
+            serverPort: player.serverPort,
+            gameId: player.gameId,
+            matchFound: player.matchFound,
+            opponent: player.opponent,
+            host: player.host,
+            timeout: this.getTimeUntilDisconnect(player.timeout),
+          },
+          opponent: player.opponent,
+        },
       });
 
       this.resetTimeout(player);
       return;
     } else if (this.queue.indexOf(player) != -1) {
       res.json({
+        request: 'getQueueStatus',
+        success: true,
         message: `in queue`,
         data: {
           playersInQueue: this.queue.length,
@@ -221,6 +291,8 @@ export default class QueueController {
       return;
     } else {
       res.json({
+        request: 'getQueueStatus',
+        success: false,
         message: `not in queue`,
         data: {
           playersInQueue: this.queue.length,
@@ -239,11 +311,31 @@ export default class QueueController {
 
           player1.host = true;
           player1.matchFound = true;
-          player1.opponent = player2;
+          player1.opponent = {
+            id: player2.id,
+            address: player2.address,
+            lanAddress: player2.lanAddress,
+            serverPort: player2.serverPort,
+            gameId: player2.gameId,
+            matchFound: player2.matchFound,
+            opponent: player2.opponent,
+            host: player2.host,
+            timeout: this.getTimeUntilDisconnect(player2.timeout),
+          };
 
           player2.host = false;
           player2.matchFound = true;
-          player2.opponent = player1;
+          player2.opponent = {
+            id: player1.id,
+            address: player1.address,
+            lanAddress: player1.lanAddress,
+            serverPort: player1.serverPort,
+            gameId: player1.gameId,
+            matchFound: player1.matchFound,
+            opponent: player1.opponent,
+            host: player1.host,
+            timeout: this.getTimeUntilDisconnect(player1.timeout),
+          };
           this.queue.splice(index, 2);
         });
       } else {
